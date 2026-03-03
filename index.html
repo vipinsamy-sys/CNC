@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CNC Machine Health Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Header -->
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">AI-enabled CNC Monitoring</p>
+        <h1>Machine Health & Resource Optimization</h1>
+      </div>
+      <div class="status-badge status-healthy">Healthy</div>
+    </header>
+
+    <!-- Live Monitoring -->
+    <section class="section">
+      <div class="section-title-wrap">
+        <h2>Live Monitoring</h2>
+      </div>
+      <div class="grid grid-4">
+        <article class="card metric-card">
+          <div class="card-head">
+            <h3>RPM</h3>
+            <span class="dot dot-healthy" aria-label="Healthy"></span>
+          </div>
+          <p class="metric-value">1240 <span>rev/min</span></p>
+          <p class="metric-note">Stable spindle speed</p>
+        </article>
+
+        <article class="card metric-card">
+          <div class="card-head">
+            <h3>Temperature</h3>
+            <span class="dot dot-warning" aria-label="Warning"></span>
+          </div>
+          <p class="metric-value">72<span>&deg;C</span></p>
+          <p class="metric-note">Near upper threshold</p>
+        </article>
+
+        <article class="card metric-card">
+          <div class="card-head">
+            <h3>Vibration Level</h3>
+            <span class="dot dot-healthy" aria-label="Healthy"></span>
+          </div>
+          <p class="metric-value">1.8 <span>mm/s</span></p>
+          <p class="metric-note">Within safe range</p>
+        </article>
+
+        <article class="card metric-card">
+          <div class="card-head">
+            <h3>Current Consumption</h3>
+            <span class="dot dot-healthy" aria-label="Healthy"></span>
+          </div>
+          <p class="metric-value">8.6 <span>A</span></p>
+          <p class="metric-note">Normal power draw</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Operational Insights -->
+    <section class="section">
+      <div class="section-title-wrap">
+        <h2>Operational Insights</h2>
+      </div>
+      <div class="grid grid-3">
+        <article class="card insight-card">
+          <h3>Tool Wear</h3>
+          <p class="metric-value">63 <span>%</span></p>
+          <div class="bar">
+            <span style="width: 63%"></span>
+          </div>
+        </article>
+
+        <article class="card insight-card">
+          <h3>Machine Utilization</h3>
+          <p class="metric-value">78 <span>%</span></p>
+          <div class="bar">
+            <span style="width: 78%"></span>
+          </div>
+        </article>
+
+        <article class="card insight-card">
+          <h3>Energy Per Part</h3>
+          <p class="metric-value">1.9 <span>kWh</span></p>
+          <p class="metric-note">Optimized against baseline</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Health Score -->
+    <section class="section">
+      <div class="health-card card">
+        <h2>Machine Health Score</h2>
+        <div class="health-center">
+          <div class="health-ring" role="img" aria-label="Machine health score 82 out of 100">
+            <div class="health-ring-inner">
+              <p class="score">82</p>
+              <p class="score-sub">/ 100</p>
+            </div>
+          </div>
+          <p class="health-text">Machine is healthy with minor thermal attention required.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerts -->
+    <section class="section">
+      <div class="section-title-wrap">
+        <h2>Alerts</h2>
+      </div>
+      <div class="card alerts-card">
+        <ul class="alerts-list">
+          <li>
+            <span class="alert-tag critical">Critical</span>
+            <div>
+              <p class="alert-text">Abnormal temperature spike detected on spindle bearing.</p>
+              <time>2026-03-03 10:42:18</time>
+            </div>
+          </li>
+          <li>
+            <span class="alert-tag info">Info</span>
+            <div>
+              <p class="alert-text">Idle time exceeded configured threshold for 12 minutes.</p>
+              <time>2026-03-03 10:18:02</time>
+            </div>
+          </li>
+          <li>
+            <span class="alert-tag info">Info</span>
+            <div>
+              <p class="alert-text">Tool wear trend suggests replacement in next 2 shifts.</p>
+              <time>2026-03-03 09:55:44</time>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Trend Placeholders -->
+    <section class="section">
+      <div class="section-title-wrap">
+        <h2>Trends</h2>
+      </div>
+      <div class="grid grid-2">
+        <article class="card trend-card">
+          <h3>Vibration Trend (24h)</h3>
+          <div class="chart-placeholder">
+            <div class="line line-a"></div>
+          </div>
+        </article>
+        <article class="card trend-card">
+          <h3>Energy per Part Trend</h3>
+          <div class="chart-placeholder">
+            <div class="line line-b"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
