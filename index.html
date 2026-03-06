@@ -1,167 +1,565 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CNC Machine Health Dashboard</title>
+  <meta name="description"
+    content="Industrial CNC machine monitoring dashboard with AI diagnostics, real-time sensor data, and predictive maintenance." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <div class="dashboard">
-    <!-- Header -->
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">AI-enabled CNC Monitoring</p>
-        <h1>Machine Health & Resource Optimization</h1>
-      </div>
-      <div class="status-badge status-healthy">Healthy</div>
-    </header>
 
-    <!-- Live Monitoring -->
-    <section class="section">
-      <div class="section-title-wrap">
-        <h2>Live Monitoring</h2>
-      </div>
-      <div class="grid grid-4">
-        <article class="card metric-card">
-          <div class="card-head">
-            <h3>RPM</h3>
-            <span class="dot dot-healthy" aria-label="Healthy"></span>
-          </div>
-          <p class="metric-value">1240 <span>rev/min</span></p>
-          <p class="metric-note">Stable spindle speed</p>
-        </article>
+  <!-- Top Navigation -->
+  <nav class="topnav" id="topnav">
+    <div class="nav-brand">
+      <span class="brand-icon">⚙</span>
+      <span class="brand-text">CNC Monitor</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+      <li><a href="#" class="nav-link" data-page="monitoring">Monitoring</a></li>
+      <li><a href="#" class="nav-link" data-page="ai-diagnostics">AI Diagnostics</a></li>
+    </ul>
+    <div class="nav-status">
+      <span class="status-dot status-dot-healthy"></span>
+      <span class="status-label">System Healthy</span>
+    </div>
+  </nav>
 
-        <article class="card metric-card">
-          <div class="card-head">
-            <h3>Temperature</h3>
-            <span class="dot dot-warning" aria-label="Warning"></span>
-          </div>
-          <p class="metric-value">72<span>&deg;C</span></p>
-          <p class="metric-note">Near upper threshold</p>
-        </article>
+  <main class="main-container">
 
-        <article class="card metric-card">
-          <div class="card-head">
-            <h3>Vibration Level</h3>
-            <span class="dot dot-healthy" aria-label="Healthy"></span>
-          </div>
-          <p class="metric-value">1.8 <span>mm/s</span></p>
-          <p class="metric-note">Within safe range</p>
-        </article>
+    <!-- ============================================================ -->
+    <!-- PAGE 1: DASHBOARD                                            -->
+    <!-- ============================================================ -->
+    <section class="page page-active" id="page-dashboard">
 
-        <article class="card metric-card">
-          <div class="card-head">
-            <h3>Current Consumption</h3>
-            <span class="dot dot-healthy" aria-label="Healthy"></span>
-          </div>
-          <p class="metric-value">8.6 <span>A</span></p>
-          <p class="metric-note">Normal power draw</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- Operational Insights -->
-    <section class="section">
-      <div class="section-title-wrap">
-        <h2>Operational Insights</h2>
-      </div>
-      <div class="grid grid-3">
-        <article class="card insight-card">
-          <h3>Tool Wear</h3>
-          <p class="metric-value">63 <span>%</span></p>
-          <div class="bar">
-            <span style="width: 63%"></span>
-          </div>
-        </article>
-
-        <article class="card insight-card">
-          <h3>Machine Utilization</h3>
-          <p class="metric-value">78 <span>%</span></p>
-          <div class="bar">
-            <span style="width: 78%"></span>
-          </div>
-        </article>
-
-        <article class="card insight-card">
-          <h3>Energy Per Part</h3>
-          <p class="metric-value">1.9 <span>kWh</span></p>
-          <p class="metric-note">Optimized against baseline</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- Health Score -->
-    <section class="section">
-      <div class="health-card card">
-        <h2>Machine Health Score</h2>
-        <div class="health-center">
-          <div class="health-ring" role="img" aria-label="Machine health score 82 out of 100">
-            <div class="health-ring-inner">
-              <p class="score">82</p>
-              <p class="score-sub">/ 100</p>
-            </div>
-          </div>
-          <p class="health-text">Machine is healthy with minor thermal attention required.</p>
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">AI-Enabled CNC Monitoring</p>
+          <h1>Machine Health &amp; Resource Optimization</h1>
         </div>
-      </div>
+        <div class="status-badge status-healthy">Healthy</div>
+      </header>
+
+      <!-- Live Monitoring -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Live Monitoring</h2>
+        </div>
+        <div class="grid grid-4">
+          
+          <article class="card metric-card">
+            <div class="card-head">
+              <h3>Temperature</h3>
+              <span class="dot dot-warning" aria-label="Warning"></span>
+            </div>
+            <p class="metric-value"><span id="temperature">0</span><span>&deg;C</span></p>
+            <p class="metric-note">Near upper threshold</p>
+          </article>
+          <article class="card metric-card">
+            <div class="card-head">
+              <h3>Vibration Level</h3>
+              <span class="dot dot-healthy" aria-label="Healthy"></span>
+            </div>
+            <p class="metric-value"> <span id="vibration">0</span><span>mm/s</span></p>
+            <p class="metric-note">Within safe range</p>
+          </article>
+          <article class="card metric-card">
+            <div class="card-head">
+              <h3>Current Consumption</h3>
+              <span class="dot dot-healthy" aria-label="Healthy"></span>
+            </div>
+            <p class="metric-value"><span id="current">0</span> <span>A</span></p>
+            <p class="metric-note">Normal power draw</p>
+          </article>
+          <article class="card metric-card">
+            <div class="card-head">
+              <h3>RPM</h3>
+              <span class="dot dot-healthy" aria-label="Healthy"></span>
+            </div>
+            <p class="metric-value"><span id="rpm">0</span> <span>rev/min</span></p>
+            <p class="metric-note">Stable spindle speed</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Operational Insights -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Operational Insights</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card insight-card">
+            <h3>Tool Wear</h3>
+            <p class="metric-value">63 <span>%</span></p>
+            <div class="bar"><span style="width: 63%"></span></div>
+          </article>
+          <article class="card insight-card">
+            <h3>Machine Utilization</h3>
+            <p class="metric-value">78 <span>%</span></p>
+            <div class="bar"><span style="width: 78%"></span></div>
+          </article>
+          <article class="card insight-card">
+            <h3>Energy Per Part</h3>
+            <p class="metric-value">1.9 <span>kWh</span></p>
+            <p class="metric-note">Optimized against baseline</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Machine Health Score -->
+      <section class="section">
+        <div class="health-card card">
+          <h2>Machine Health Score</h2>
+          <div class="health-center">
+            <div class="health-ring" role="img" aria-label="Machine health score 82 out of 100">
+              <div class="health-ring-inner">
+                <p class="score">82</p>
+                <p class="score-sub">/ 100</p>
+              </div>
+            </div>
+            <p class="health-text">Machine is healthy with minor thermal attention required.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alerts -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Alerts</h2>
+        </div>
+        <div class="card alerts-card">
+          <ul class="alerts-list">
+            <li>
+              <span class="alert-tag critical">Critical</span>
+              <div>
+                <p class="alert-text">Abnormal temperature spike detected on spindle bearing.</p>
+                <time>2026-03-05 10:42:18</time>
+              </div>
+            </li>
+            <li>
+              <span class="alert-tag warning">Warning</span>
+              <div>
+                <p class="alert-text">Vibration level approaching upper threshold on X-axis.</p>
+                <time>2026-03-05 10:30:05</time>
+              </div>
+            </li>
+            <li>
+              <span class="alert-tag info">Info</span>
+              <div>
+                <p class="alert-text">Tool wear trend suggests replacement in next 2 shifts.</p>
+                <time>2026-03-05 09:55:44</time>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- AI Quick Diagnostics -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>AI Quick Diagnostics</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card detail-card">
+            <h3>Predicted Failure Risk</h3>
+            <p class="metric-value detail-value warning-text">12 <span>%</span></p>
+            <p class="metric-note">Low risk — no immediate action needed</p>
+          </article>
+          <article class="card detail-card">
+            <h3>Suggested Tool Replacement</h3>
+            <p class="detail-highlight">In ~18 hours</p>
+            <p class="metric-note">Based on current wear trajectory</p>
+          </article>
+          <article class="card detail-card">
+            <h3>Anomaly Score</h3>
+            <p class="metric-value detail-value">0.23 <span>/ 1.0</span></p>
+            <p class="metric-note">Within normal operating envelope</p>
+          </article>
+        </div>
+      </section>
+
     </section>
 
-    <!-- Alerts -->
-    <section class="section">
-      <div class="section-title-wrap">
-        <h2>Alerts</h2>
-      </div>
-      <div class="card alerts-card">
-        <ul class="alerts-list">
-          <li>
-            <span class="alert-tag critical">Critical</span>
-            <div>
-              <p class="alert-text">Abnormal temperature spike detected on spindle bearing.</p>
-              <time>2026-03-03 10:42:18</time>
+    <!-- ============================================================ -->
+    <!-- PAGE 2: MONITORING                                           -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-monitoring">
+
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Detailed Sensor Data</p>
+          <h1>Monitoring &amp; Trends</h1>
+        </div>
+        <div class="status-badge status-healthy">All Sensors Online</div>
+      </header>
+
+      <!-- RPM Analysis -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>RPM Analysis</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card detail-card">
+            <h3>Current RPM</h3>
+            <p class="metric-value">1240 <span>rev/min</span></p>
+            <span class="chip chip-ok">Normal</span>
+          </article>
+          <article class="card detail-card">
+            <h3>Average RPM</h3>
+            <p class="metric-value">1225 <span>rev/min</span></p>
+            <p class="metric-note">Last 24 hours average</p>
+          </article>
+          <article class="card detail-card">
+            <h3>RPM Stability</h3>
+            <p class="metric-value">96.2 <span>%</span></p>
+            <span class="chip chip-ok">Stable</span>
+          </article>
+        </div>
+      </section>
+
+      <!-- Temperature Diagnostics -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Temperature Diagnostics</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card detail-card">
+            <h3>Current Temperature</h3>
+            <p class="metric-value">72<span>&deg;C</span></p>
+            <span class="chip chip-warning">Elevated</span>
+          </article>
+          <article class="card detail-card">
+            <h3>Cooling Efficiency</h3>
+            <p class="metric-value">84 <span>%</span></p>
+            <p class="metric-note">Slight performance drop detected</p>
+          </article>
+          <article class="card detail-card">
+            <h3>Overheating Risk</h3>
+            <p class="metric-value warning-text">Medium</p>
+            <p class="metric-note">Monitor closely during extended cycles</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Vibration Analysis -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Vibration Analysis</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card detail-card">
+            <h3>Vibration Level</h3>
+            <p class="metric-value">1.8 <span>mm/s</span></p>
+            <span class="chip chip-ok">Safe</span>
+          </article>
+          <article class="card detail-card">
+            <h3>Anomaly Detection</h3>
+            <p class="metric-value">None</p>
+            <span class="chip chip-ok">Clear</span>
+          </article>
+          <article class="card detail-card">
+            <h3>Bearing Wear Probability</h3>
+            <p class="metric-value">8 <span>%</span></p>
+            <p class="metric-note">Within acceptable range</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Graphs / Trends -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Trends</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card trend-card">
+            <h3>Vibration Trend (24h)</h3>
+            <div class="chart-placeholder">
+              <svg class="chart-svg" viewBox="0 0 300 120" preserveAspectRatio="none">
+                <polyline points="0,80 30,75 60,60 90,65 120,50 150,55 180,45 210,50 240,40 270,42 300,38" fill="none"
+                  stroke="#2563eb" stroke-width="2" />
+                <polyline points="0,80 30,75 60,60 90,65 120,50 150,55 180,45 210,50 240,40 270,42 300,38"
+                  fill="url(#blueGrad)" stroke="none" opacity="0.15" />
+              </svg>
+              <div class="chart-labels">
+                <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span>
+              </div>
             </div>
-          </li>
-          <li>
-            <span class="alert-tag info">Info</span>
-            <div>
-              <p class="alert-text">Idle time exceeded configured threshold for 12 minutes.</p>
-              <time>2026-03-03 10:18:02</time>
+          </article>
+          <article class="card trend-card">
+            <h3>Energy Usage Trend</h3>
+            <div class="chart-placeholder">
+              <svg class="chart-svg" viewBox="0 0 300 120" preserveAspectRatio="none">
+                <polyline points="0,90 30,85 60,70 90,75 120,60 150,50 180,55 210,45 240,50 270,48 300,42" fill="none"
+                  stroke="#2563eb" stroke-width="2" />
+                <polyline points="0,90 30,85 60,70 90,75 120,60 150,50 180,55 210,45 240,50 270,48 300,42"
+                  fill="url(#blueGrad)" stroke="none" opacity="0.15" />
+              </svg>
+              <div class="chart-labels">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+              </div>
             </div>
-          </li>
-          <li>
-            <span class="alert-tag info">Info</span>
-            <div>
-              <p class="alert-text">Tool wear trend suggests replacement in next 2 shifts.</p>
-              <time>2026-03-03 09:55:44</time>
+          </article>
+          <article class="card trend-card">
+            <h3>RPM Stability Trend</h3>
+            <div class="chart-placeholder">
+              <svg class="chart-svg" viewBox="0 0 300 120" preserveAspectRatio="none">
+                <polyline points="0,30 30,28 60,32 90,25 120,27 150,24 180,26 210,22 240,20 270,22 300,18" fill="none"
+                  stroke="#16a34a" stroke-width="2" />
+                <polyline points="0,30 30,28 60,32 90,25 120,27 150,24 180,26 210,22 240,20 270,22 300,18"
+                  fill="url(#greenGrad)" stroke="none" opacity="0.15" />
+              </svg>
+              <div class="chart-labels">
+                <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span>
+              </div>
             </div>
-          </li>
-        </ul>
-      </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Shared SVG gradients -->
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2563eb" />
+            <stop offset="100%" stop-color="#2563eb" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#16a34a" />
+            <stop offset="100%" stop-color="#16a34a" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+
     </section>
 
-    <!-- Trend Placeholders -->
-    <section class="section">
-      <div class="section-title-wrap">
-        <h2>Trends</h2>
-      </div>
-      <div class="grid grid-2">
-        <article class="card trend-card">
-          <h3>Vibration Trend (24h)</h3>
-          <div class="chart-placeholder">
-            <div class="line line-a"></div>
-          </div>
-        </article>
-        <article class="card trend-card">
-          <h3>Energy per Part Trend</h3>
-          <div class="chart-placeholder">
-            <div class="line line-b"></div>
-          </div>
-        </article>
-      </div>
+    <!-- ============================================================ -->
+    <!-- PAGE 3: AI DIAGNOSTICS                                       -->
+    <!-- ============================================================ -->
+    <section class="page" id="page-ai-diagnostics">
+
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">AI-Powered Analysis</p>
+          <h1>Fault Analysis &amp; Maintenance</h1>
+        </div>
+        <div class="status-badge status-healthy">AI Active</div>
+      </header>
+
+      <!-- Fault Detection -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Fault Detection</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card checklist-card">
+            <div class="check-head">
+              <h3>Overheating</h3>
+              <span class="chip chip-warning">Detected</span>
+            </div>
+            <p class="metric-note">Spindle bearing temperature exceeding 70°C threshold. Coolant flow may be reduced.
+            </p>
+          </article>
+          <article class="card checklist-card">
+            <div class="check-head">
+              <h3>High Vibration</h3>
+              <span class="chip chip-ok">Normal</span>
+            </div>
+            <p class="metric-note">Vibration levels are within the acceptable operating range.</p>
+          </article>
+          <article class="card checklist-card">
+            <div class="check-head">
+              <h3>High Current</h3>
+              <span class="chip chip-ok">Normal</span>
+            </div>
+            <p class="metric-note">Current draw is stable and within rated capacity.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Possible Causes -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Possible Causes</h2>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Cause</th>
+                <th>Likelihood</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Bearing Wear</td>
+                <td>
+                  <div class="bar bar-inline"><span style="width: 35%"></span></div>
+                  <span class="bar-label">35%</span>
+                </td>
+                <td><span class="chip chip-warning">Monitor</span></td>
+              </tr>
+              <tr>
+                <td>Shaft Misalignment</td>
+                <td>
+                  <div class="bar bar-inline"><span style="width: 15%"></span></div>
+                  <span class="bar-label">15%</span>
+                </td>
+                <td><span class="chip chip-ok">Low</span></td>
+              </tr>
+              <tr>
+                <td>Loose Mounting</td>
+                <td>
+                  <div class="bar bar-inline"><span style="width: 10%"></span></div>
+                  <span class="bar-label">10%</span>
+                </td>
+                <td><span class="chip chip-ok">Low</span></td>
+              </tr>
+              <tr>
+                <td>Motor Overload</td>
+                <td>
+                  <div class="bar bar-inline"><span style="width: 20%"></span></div>
+                  <span class="bar-label">20%</span>
+                </td>
+                <td><span class="chip chip-ok">Low</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Maintenance Suggestions -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>Maintenance Suggestions</h2>
+        </div>
+        <div class="grid grid-2">
+          <article class="card suggestion-card">
+            <div class="suggestion-icon priority-high">!</div>
+            <div>
+              <h3>Replace Bearing</h3>
+              <p class="metric-note">Bearing wear at 35% — schedule replacement within next maintenance window.</p>
+            </div>
+          </article>
+          <article class="card suggestion-card">
+            <div class="suggestion-icon priority-medium">↻</div>
+            <div>
+              <h3>Lubrication</h3>
+              <p class="metric-note">Apply lubrication to spindle bearings to reduce thermal friction.</p>
+            </div>
+          </article>
+          <article class="card suggestion-card">
+            <div class="suggestion-icon priority-low">🔧</div>
+            <div>
+              <h3>Tighten Bolts</h3>
+              <p class="metric-note">Inspect and tighten mounting bolts on the spindle assembly.</p>
+            </div>
+          </article>
+          <article class="card suggestion-card">
+            <div class="suggestion-icon priority-medium">⚡</div>
+            <div>
+              <h3>Reduce Load</h3>
+              <p class="metric-note">Consider reducing spindle load during extended machining cycles.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- AI Prediction -->
+      <section class="section">
+        <div class="section-title-wrap">
+          <h2>AI Prediction</h2>
+        </div>
+        <div class="grid grid-3">
+          <article class="card detail-card">
+            <h3>Tool Life Remaining</h3>
+            <p class="metric-value">~18 <span>hrs</span></p>
+            <div class="bar"><span style="width: 37%"></span></div>
+            <p class="metric-note">37% remaining tool life</p>
+          </article>
+          <article class="card detail-card">
+            <h3>Failure Probability</h3>
+            <p class="metric-value warning-text">12 <span>%</span></p>
+            <p class="metric-note">Next 48-hour failure likelihood</p>
+          </article>
+          <article class="card detail-card">
+            <h3>Anomaly Score</h3>
+            <p class="metric-value">0.23 <span>/ 1.0</span></p>
+            <span class="chip chip-ok">Normal</span>
+          </article>
+        </div>
+      </section>
+
     </section>
-  </div>
+
+  </main>
+
+  <!-- Minimal page switching JS -->
+  <script>
+    document.querySelectorAll('.nav-link').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var target = this.getAttribute('data-page');
+
+        // Update nav active state
+        document.querySelectorAll('.nav-link').forEach(function (l) { l.classList.remove('active'); });
+        this.classList.add('active');
+
+        // Show target page, hide others
+        document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('page-active'); });
+        document.getElementById('page-' + target).classList.add('page-active');
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+      });
+    });
+
+  </script>
+
+  
+
+  <script type="module">
+    //firebase
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCG3xnHN-_7-QnYKlivs7TSxPy1_DLU-sQ",
+  authDomain: "cnc-machine-8664d.firebaseapp.com",
+  databaseURL: "https://cnc-machine-8664d-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "cnc-machine-8664d",
+  storageBucket: "cnc-machine-8664d.firebasestorage.app",
+  messagingSenderId: "204190324559",
+  appId: "1:204190324559:web:f97a8dde9c502a2169573a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const sensorRef = ref(db, "cnc_machine");
+
+onValue(sensorRef, (snapshot) => {
+
+    const data = snapshot.val();
+
+    if (!data) return;
+
+    document.getElementById("temperature").innerText = data.temperature;
+    document.getElementById("vibration").innerText = data.vibration;
+    document.getElementById("current").innerText = data.current;
+    document.getElementById("rpm").innerText = data.rpm;
+
+});
+
+</script>
 </body>
+
 </html>
