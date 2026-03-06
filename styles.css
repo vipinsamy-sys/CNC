@@ -366,6 +366,8 @@ body {
 .health-ring {
   width: 160px;
   height: 160px;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
   border-radius: 50%;
   background: conic-gradient(var(--blue) 0 295deg, #e2e8f0 295deg 360deg);
   display: grid;
@@ -493,6 +495,57 @@ time {
   color: var(--red);
   background: var(--red-soft);
   border-color: rgba(212, 43, 43, 0.25);
+}
+
+.chip-danger {
+  color: #fff;
+  background: var(--red);
+  border-color: var(--red);
+}
+
+/* Status dot variants for dynamic updates */
+.dot-ok {
+  background: var(--green);
+}
+
+.dot-warning {
+  background: var(--amber);
+}
+
+.dot-danger {
+  background: var(--red);
+}
+
+/* Alert card variants */
+.alert-card {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border-left: 4px solid;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.alert-card time {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.alert-high {
+  background: var(--red-soft);
+  border-color: var(--red);
+}
+
+.alert-medium {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+
+.alert-low {
+  background: var(--green-soft);
+  border-color: var(--green);
 }
 
 /* =============== TREND / CHART =============== */

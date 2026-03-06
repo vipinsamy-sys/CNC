@@ -46,5 +46,5 @@ pip-wheel-metadata/
 .venv/
 
 .history
-
+app/firebase_key.json
 credentials.json
