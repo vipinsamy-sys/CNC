@@ -5,19 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CNC Machine Health Dashboard</title>
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" href="data:,">
   <meta name="description"
     content="Industrial CNC machine monitoring dashboard with AI diagnostics, real-time sensor data, and predictive maintenance." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <!-- Chart.js for real-time charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-
-  <!-- Top Navigation -->
   <nav class="topnav" id="topnav">
     <div class="nav-brand">
       <span class="brand-icon">⚙</span>
@@ -35,12 +34,8 @@
   </nav>
 
   <main class="main-container">
-
-    <!-- ============================================================ -->
-    <!-- PAGE 1: DASHBOARD                                            -->
-    <!-- ============================================================ -->
+    <!-- PAGE 1: DASBOARD -->
     <section class="page page-active" id="page-dashboard">
-
       <header class="page-header">
         <div>
           <p class="eyebrow">AI-Enabled CNC Monitoring</p>
@@ -48,8 +43,7 @@
         </div>
         <div class="status-badge" id="dashboard-status-badge">Loading...</div>
       </header>
-
-      <!-- Live Monitoring -->
+      <!--Monitor -->
       <section class="section">
         <div class="section-title-wrap">
           <h2>Live Monitoring</h2>
@@ -169,18 +163,16 @@
           </article>
           <article class="card detail-card">
             <h3>Anomaly Score</h3>
-            <p class="metric-value detail-value"><span id="anomaly_score">0</span> <span>/ 1.0</span></p>
-            <p class="metric-note" id="anomaly-note">Calculating...</p>
+            <p class="metric-value"><span id="ai_anomaly_score">0</span> <span>/ 1.0</span></p>
+            <span class="chip" id="ai-anomaly-chip">Calculating</span>
           </article>
         </div>
       </section>
 
     </section>
 
-    <!-- ============================================================ -->
     <!-- PAGE 2: MONITORING                                           -->
-    <!-- ============================================================ -->
-    <section class="page" id="page-monitoring">
+     <section class="page" id="page-monitoring">
 
       <header class="page-header">
         <div>
@@ -307,10 +299,8 @@
 
     </section>
 
-    <!-- ============================================================ -->
-    <!-- PAGE 3: AI DIAGNOSTICS                                       -->
-    <!-- ============================================================ -->
-    <section class="page" id="page-ai-diagnostics">
+     <!-- PAGE 3: AI DIAGNOSTICS                                       -->
+     <section class="page" id="page-ai-diagnostics">
 
       <header class="page-header">
         <div>
@@ -408,7 +398,6 @@
           <h2>Maintenance Suggestions</h2>
         </div>
         <div class="grid grid-2" id="maintenance-suggestions">
-          <!-- Dynamically populated by JavaScript based on AI predictions -->
           <article class="card suggestion-card" id="suggest-tool">
             <div class="suggestion-icon" id="suggest-tool-icon">🔧</div>
             <div>
@@ -457,11 +446,7 @@
             <p class="metric-value" id="ai-failure-text"><span id="ai_failure_probability">0</span> <span>%</span></p>
             <p class="metric-note" id="ai-failure-note">Next 48-hour likelihood</p>
           </article>
-          <article class="card detail-card">
-            <h3>Anomaly Score</h3>
-            <p class="metric-value"><span id="ai_anomaly_score">0</span> <span>/ 1.0</span></p>
-            <span class="chip" id="ai-anomaly-chip">Loading</span>
-          </article>
+          
         </div>
       </section>
 
@@ -494,11 +479,6 @@
   
 
 <script type="module">
-/**
- * CNC Machine Monitoring - Firebase Real-Time Dashboard
- * Handles sensor data, AI predictions, alerts, trends, and Chart.js visualization
- */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -515,10 +495,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CHART.JS INITIALIZATION
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+// CHART.JS INITIALIZATION
 const chartConfig = {
   maxPoints: 50,
   animation: false,
@@ -576,15 +554,12 @@ function updateChart(chart, dataArray) {
 }
 
 // Initialize charts
-let rpmChart = createLineChart('rpmChart', 'RPM', '#4ade80', 1200, 1800);
-let temperatureChart = createLineChart('temperatureChart', 'Temperature', '#f87171', 40, 100);
-let vibrationChart = createLineChart('vibrationChart', 'Vibration', '#fbbf24', 0, 5);
+let rpmChart = createLineChart('rpmChart', 'RPM', '#4ade80', 1000, 10000);
+let temperatureChart = createLineChart('temperatureChart', 'Temperature', '#f87171', 25, 100);
+let vibrationChart = createLineChart('vibrationChart', 'Vibration', '#fbbf24', 0, 25);
 let energyChart = createLineChart('energyChart', 'Energy', '#60a5fa', 0, 2);
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // HELPER FUNCTIONS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 function safeSet(id, value) {
   const el = document.getElementById(id);
   if (el) el.innerText = value;
@@ -628,11 +603,8 @@ function getSuggestionPriority(value, thresholdHigh, thresholdMed) {
   return 'priority-low';
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// SENSOR DATA LISTENER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const sensorRef = ref(db, "cnc_machine");
+ // SENSOR DATA LISTENER
+const sensorRef = ref(db, "cnc_machine/sensors");
 
 onValue(sensorRef, (snapshot) => {
   const data = snapshot.val();
@@ -650,10 +622,13 @@ onValue(sensorRef, (snapshot) => {
   safeSet('current_vib_mon', data.vibration?.toFixed(2) || '--');
 
   // Sensor status indicators (dots)
-  const tempAlert = data.temperature > 75 ? 'dot-warning' : (data.temperature > 85 ? 'dot-danger' : 'dot-ok');
+   const tempAlert =
+  data.temperature > 85 ? 'dot-danger' :
+  data.temperature > 75 ? 'dot-warning' :
+  'dot-ok';
   const vibAlert = data.vibration > 2.5 ? 'dot-warning' : (data.vibration > 3.5 ? 'dot-danger' : 'dot-ok');
   const currAlert = data.current > 8.5 ? 'dot-warning' : (data.current > 10 ? 'dot-danger' : 'dot-ok');
-  const rpmAlert = (data.rpm < 1400 || data.rpm > 1600) ? 'dot-warning' : 'dot-ok';
+  const rpmAlert = (data.rpm < 1000 || data.rpm > 1300) ? 'dot-warning' : 'dot-ok';
 
   setDotClass('temp-dot', tempAlert);
   setDotClass('vib-dot', vibAlert);
@@ -664,33 +639,36 @@ onValue(sensorRef, (snapshot) => {
   safeSet('temp-note', data.temperature > 70 ? 'Above optimal range (60-70°C)' : 'Within optimal range');
   safeSet('vib-note', data.vibration > 2.0 ? 'Elevated vibration detected' : 'Vibration within limits');
   safeSet('curr-note', data.current > 8 ? 'High current draw detected' : 'Current draw normal');
-  safeSet('rpm-note', (data.rpm < 1400 || data.rpm > 1600) ? 'RPM outside optimal window' : 'RPM stable');
+  safeSet('rpm-note', (data.rpm < 1000 || data.rpm > 1300) ? 'RPM outside optimal window' : 'RPM stable');
 
   // Update connection status
   setDotClass('status-dot', 'dot-ok');
   safeSet('status-label', 'Live');
 });
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// AI PREDICTIONS LISTENER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+ // AI PREDICTIONS LISTENER
+const analyticsRef = ref(db, "cnc_machine/analytics");
 const aiRef = ref(db, "cnc_machine_ai");
 
-onValue(aiRef, (snapshot) => {
-  const ai = snapshot.val();
-  if (!ai) return;
+let latestAnalytics = {};
+let latestAi = {};
 
-  // ────────────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const ai = { ...latestAnalytics, ...latestAi };
+  if (Object.keys(ai).length === 0) return;
+
+  
   // PAGE 1: DASHBOARD
-  // ────────────────────────────────────────────────────────────────────────
-
   // Health Score
   const healthScore = ai.health_score ?? 0;
   safeSet('health_score', Math.round(healthScore));
-  safeSet('health-text', Math.round(healthScore));
-  
-  // Update health ring as conic gradient (not width!)
+  let healthText =
+    healthScore > 90 ? "Excellent condition" :
+    healthScore > 70 ? "Healthy system" :
+    healthScore > 50 ? "Monitor closely" :
+    "Maintenance required";
+  safeSet('health-text', healthText);
+ 
   const healthRing = document.getElementById('health-ring');
   if (healthRing) {
     const deg = (healthScore / 100) * 360;
@@ -701,6 +679,17 @@ onValue(aiRef, (snapshot) => {
   const failProb = (ai.failure_probability ?? 0) * 100;
   safeSet('failure_probability', failProb.toFixed(1));
   safeSet('ai_failure_probability', failProb.toFixed(1));
+  safeSet('failure-note', failProb > 50 ? 'High risk - take action' : failProb > 20 ? 'Elevated risk - monitor' : 'Low risk');
+
+  // Dashboard status badge
+  const statusBadge = document.getElementById('dashboard-status-badge');
+  if (statusBadge) {
+    statusBadge.innerText = healthScore > 70 ? 'Healthy' : healthScore > 40 ? 'Warning' : 'Critical';
+    statusBadge.className = 'status-badge ' + (healthScore > 70 ? 'status-healthy' : healthScore > 40 ? 'status-warning' : 'status-critical');
+  }
+
+  // Suggested tool replacement (AI Quick Diagnostics section)
+  safeSet('suggested_tool_replacement', (ai.suggested_tool_replacement_hours ?? 0).toFixed(0));
 
   // RPM Analytics
   safeSet('avg_rpm', Math.round(ai.avg_rpm ?? 0));
@@ -717,21 +706,56 @@ onValue(aiRef, (snapshot) => {
 
   safeSet('energy_per_part', (ai.energy_per_part ?? 0).toFixed(3));
 
-  // ────────────────────────────────────────────────────────────────────────
+  
   // PAGE 2: MONITORING
-  // ────────────────────────────────────────────────────────────────────────
+  // RPM Stability chip
+  const rpmStability = ai.rpm_stability ?? 0;
+  const stabilityPct = (rpmStability * 100).toFixed(0);
+  const stabilityInfo = rpmStability >= 0.95 ? { class: 'chip-ok', text: 'Stable' }
+    : rpmStability >= 0.85 ? { class: 'chip-warning', text: 'Variable' }
+    : { class: 'chip-danger', text: 'Unstable' };
+  setChipClass('stability-chip', stabilityInfo.class, stabilityInfo.text);
+
+  // Temperature chip (monitoring page)
+  const overheatRiskVal = ai.overheating_risk ?? 0;
+  const tempChipInfo = overheatRiskVal > 60 ? { class: 'chip-danger', text: 'Critical' }
+    : overheatRiskVal > 30 ? { class: 'chip-warning', text: 'Elevated' }
+    : { class: 'chip-ok', text: 'Normal' };
+  setChipClass('temp-chip', tempChipInfo.class, tempChipInfo.text);
 
   // Cooling & Thermal
   safeSet('cooling_efficiency', (ai.cooling_efficiency ?? 0).toFixed(1));
   safeSet('overheating_risk', (ai.overheating_risk ?? 0).toFixed(1));
 
+  // Cooling & overheat notes
+  const coolingEffVal = ai.cooling_efficiency ?? 0;
+  safeSet('cooling-note', coolingEffVal >= 90 ? 'System optimal' : coolingEffVal >= 70 ? 'Adequate cooling' : 'Check coolant system');
+  safeSet('overheat-note', overheatRiskVal > 60 ? 'Immediate attention required' : overheatRiskVal > 30 ? 'Monitor closely' : 'Within safe range');
+
+  // Vibration chip (monitoring page)
+  const vibAlert = ai.alerts?.vibration_alert ?? false;
+  const vibSeverity = ai.alerts?.vibration_severity ?? 'low';
+  const vibChipInfo = vibSeverity === 'high' ? { class: 'chip-danger', text: 'High' }
+    : vibSeverity === 'medium' ? { class: 'chip-warning', text: 'Elevated' }
+    : { class: 'chip-ok', text: 'Normal' };
+  setChipClass('vib-chip', vibChipInfo.class, vibChipInfo.text);
+
+  // Vibration Anomaly Detection
+  const anomalyVal = ai.anomaly_score ?? 0;
+  const vibAnomalyText = anomalyVal > 0.5 ? 'Anomaly Detected' : anomalyVal > 0.2 ? 'Minor variance' : 'Normal';
+  safeSet('vib-anomaly-text', vibAnomalyText);
+  const anomalyChipInfo = anomalyVal > 0.5 ? { class: 'chip-danger', text: 'Alert' }
+    : anomalyVal > 0.2 ? { class: 'chip-warning', text: 'Watch' }
+    : { class: 'chip-ok', text: 'OK' };
+  setChipClass('anomaly-chip', anomalyChipInfo.class, anomalyChipInfo.text);
+
   // Bearing Analysis
   safeSet('bearing_wear_probability', (ai.bearing_wear_probability ?? 0).toFixed(1));
+  const bearingWearVal = ai.bearing_wear_probability ?? 0;
+  safeSet('bearing-note', bearingWearVal > 50 ? 'Inspection recommended' : bearingWearVal > 25 ? 'Monitor wear trend' : 'Bearing condition good');
 
-  // ────────────────────────────────────────────────────────────────────────
+   
   // PAGE 3: AI DIAGNOSTICS
-  // ────────────────────────────────────────────────────────────────────────
-
   // Fault Detection Chips
   const alerts = ai.alerts || {};
 
@@ -798,10 +822,8 @@ onValue(aiRef, (snapshot) => {
     : { class: 'chip-ok', text: 'Normal' };
   setChipClass('ai-anomaly-chip', anomalyInfo.class, anomalyInfo.text);
 
-  // ────────────────────────────────────────────────────────────────────────
-  // MAINTENANCE SUGGESTIONS (Dynamic)
-  // ────────────────────────────────────────────────────────────────────────
-
+   
+  // MAINTENANCE SUGGESTIONS
   // Tool suggestion
   const toolIcon = document.getElementById('suggest-tool-icon');
   if (toolIcon) {
@@ -840,10 +862,8 @@ onValue(aiRef, (snapshot) => {
   safeSet('suggest-power-desc', 'Motor load at ' + currentRatio.toFixed(0) + '% — ' +
     (currentRatio > 90 ? 'reduce spindle load immediately' : currentRatio > 75 ? 'monitor current draw' : 'power consumption normal'));
 
-  // ────────────────────────────────────────────────────────────────────────
+   
   // ALERTS LIST (Dashboard)
-  // ────────────────────────────────────────────────────────────────────────
-
   const alertsList = document.getElementById('alerts-list');
   if (alertsList) {
     let alertsHTML = '';
@@ -878,10 +898,8 @@ onValue(aiRef, (snapshot) => {
     alertsList.innerHTML = alertsHTML;
   }
 
-  // ────────────────────────────────────────────────────────────────────────
-  // TREND CHARTS (from history arrays)
-  // ────────────────────────────────────────────────────────────────────────
-
+   
+  // TREND CHARTS
   const trends = ai.trends || {};
 
   if (trends.rpm_history && Array.isArray(trends.rpm_history)) {
@@ -903,6 +921,16 @@ onValue(aiRef, (snapshot) => {
   // Update status indicator
   setDotClass('status-dot', healthScore > 70 ? 'dot-ok' : healthScore > 40 ? 'dot-warning' : 'dot-danger');
   safeSet('status-label', healthScore > 70 ? 'Healthy' : healthScore > 40 ? 'Warning' : 'Critical');
+}
+
+onValue(analyticsRef, (snapshot) => {
+  latestAnalytics = snapshot.val() || {};
+  renderDashboard();
+});
+
+onValue(aiRef, (snapshot) => {
+  latestAi = snapshot.val() || {};
+  renderDashboard();
 });
 
 console.log('CNC Dashboard initialized - listening to Firebase');

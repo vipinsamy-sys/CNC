@@ -7,9 +7,7 @@ import numpy as np
 from collections import deque
 import time
 
-# ============================================================
 # HISTORY BUFFERS (fixed-size for efficiency)
-# ============================================================
 HISTORY_SIZE = 100
 
 rpm_history = deque(maxlen=HISTORY_SIZE)
@@ -18,26 +16,30 @@ current_history = deque(maxlen=HISTORY_SIZE)
 temperature_history = deque(maxlen=HISTORY_SIZE)
 energy_history = deque(maxlen=HISTORY_SIZE)
 
-# ============================================================
 # CONFIGURABLE THRESHOLDS
-# ============================================================
 # RPM
 RPM_MIN = 500
 RPM_MAX = 2000
 RPM_NOMINAL = 1250
+RPM_OPTIMAL_MIN = 1000   # Optimal operating window lower bound
+RPM_OPTIMAL_MAX = 1300   # Optimal operating window upper bound
 
 # Temperature (Celsius)
+TEMP_AMBIENT = 25         # Ambient / workshop temperature
+TEMP_IDEAL = 65           # Ideal spindle operating temperature
+TEMP_OPTIMAL = 70         # Upper optimal temperature
 TEMP_NORMAL_MAX = 70
 TEMP_WARNING = 75
-TEMP_CRITICAL = 85
+TEMP_CRITICAL = 95        # Realistic critical threshold for CNC spindle
 
 # Vibration (mm/s)
-VIBRATION_NORMAL_MAX = 2.5
+VIBRATION_NORMAL_MAX = 2.0  # Safe baseline
 VIBRATION_WARNING = 3.5
 VIBRATION_ANOMALY_THRESHOLD = 1.6  # 60% above baseline
 
 # Current (Amps)
 CURRENT_NOMINAL = 8.5
+CURRENT_OVERLOAD = 4.0    # Delta above nominal considered overload
 CURRENT_OVERLOAD_THRESHOLD = 1.3  # 30% above average
 CURRENT_MAX = 12.0
 
@@ -45,9 +47,13 @@ CURRENT_MAX = 12.0
 TOOL_MAX_HOURS = 50  # Tool replacement after ~50 hours of operation
 tool_runtime_minutes = 0  # Accumulated runtime
 
-# Energy calculation
-VOLTAGE = 380  # 3-phase industrial voltage
-POWER_FACTOR = 0.85
+# Energy calculation (DC / single-phase spindle motor)
+VOLTAGE = 48              # DC bus voltage typical for CNC spindle
+MAX_ENERGY_PER_PART = 0.5 # kWh clamp for sanity
+
+# Cycle-time estimation from RPM transitions
+_last_cycle_timestamp = None
+_estimated_cycle_seconds = 60  # initial default, updated at runtime
 
 # Timestamps for utilization
 session_start_time = time.time()
@@ -55,9 +61,7 @@ active_cycles = 0
 total_cycles = 0
 
 
-# ============================================================
 # VALIDATION
-# ============================================================
 def validate_numeric(value, name, min_val=None, max_val=None, default=0):
     """Validate and sanitize numeric input."""
     try:
@@ -75,9 +79,9 @@ def validate_numeric(value, name, min_val=None, max_val=None, default=0):
         return default
 
 
-# ============================================================
+ 
 # RPM ANALYTICS
-# ============================================================
+ 
 def update_rpm(rpm):
     """
     Update RPM history and calculate statistics.
@@ -107,9 +111,9 @@ def get_rpm_history():
     return list(rpm_history)
 
 
-# ============================================================
+ 
 # TEMPERATURE ANALYTICS
-# ============================================================
+ 
 def update_temperature(temperature):
     """Update temperature history."""
     temperature = validate_numeric(temperature, "temperature", 0, 150, 70)
@@ -143,46 +147,43 @@ def detect_temperature_alert(temperature):
 def calculate_cooling_efficiency(temperature):
     """
     Calculate cooling system efficiency (0-100%).
-    Based on how well temperature stays below threshold.
+    Uses thermal-delta formula:
+      efficiency = 100 * (ideal_temp - ambient) / (current_temp - ambient)
+    When current_temp equals ideal_temp the efficiency is 100%.
+    Higher current_temp lowers the ratio (cooling can't keep up).
     """
     temperature = validate_numeric(temperature, "temperature", 0, 150, 70)
-    
-    # Ideal: temp at 60°C or below = 100% efficiency
-    # At warning threshold = 50% efficiency
-    # At critical = 0% efficiency
-    
-    if temperature <= 60:
-        efficiency = 100
-    elif temperature >= TEMP_CRITICAL:
-        efficiency = 0
-    else:
-        # Linear interpolation between 60°C (100%) and critical (0%)
-        efficiency = 100 * (TEMP_CRITICAL - temperature) / (TEMP_CRITICAL - 60)
-    
-    return max(0, min(100, efficiency))
+
+    delta_current = temperature - TEMP_AMBIENT
+    delta_ideal = TEMP_IDEAL - TEMP_AMBIENT
+
+    if delta_current <= 0:
+        # At or below ambient – cooling has no work to do
+        return 100.0
+
+    efficiency = 100.0 * delta_ideal / delta_current
+    return max(0.0, min(100.0, efficiency))
 
 
 def calculate_overheating_risk(temperature):
     """
     Calculate overheating risk (0-100%).
+    Normalized distance between optimal and critical temperature.
+    risk = clamp((temp - optimal) / (critical - optimal), 0, 1) * 100
     """
     temperature = validate_numeric(temperature, "temperature", 0, 150, 70)
-    
-    if temperature <= TEMP_NORMAL_MAX:
-        risk = (temperature / TEMP_NORMAL_MAX) * 30  # 0-30% for normal range
-    elif temperature <= TEMP_WARNING:
-        risk = 30 + ((temperature - TEMP_NORMAL_MAX) / (TEMP_WARNING - TEMP_NORMAL_MAX)) * 30
-    elif temperature <= TEMP_CRITICAL:
-        risk = 60 + ((temperature - TEMP_WARNING) / (TEMP_CRITICAL - TEMP_WARNING)) * 30
-    else:
-        risk = 90 + min(10, (temperature - TEMP_CRITICAL))
-    
-    return max(0, min(100, risk))
+
+    span = TEMP_CRITICAL - TEMP_OPTIMAL
+    if span <= 0:
+        return 100.0 if temperature >= TEMP_CRITICAL else 0.0
+
+    risk = (temperature - TEMP_OPTIMAL) / span
+    return max(0.0, min(100.0, risk * 100))
 
 
-# ============================================================
+ 
 # VIBRATION ANALYTICS
-# ============================================================
+ 
 def update_vibration(vibration):
     """Update vibration history."""
     vibration = validate_numeric(vibration, "vibration", 0, 100, 1.5)
@@ -268,9 +269,9 @@ def calculate_bearing_wear_probability(vibration, rpm):
     return max(0, min(100, base_prob * rpm_factor))
 
 
-# ============================================================
+ 
 # CURRENT ANALYTICS
-# ============================================================
+ 
 def update_current(current):
     """Update current history."""
     current = validate_numeric(current, "current", 0, 100, 8.0)
@@ -316,26 +317,52 @@ def detect_current_alert(current):
         return False, "low"
 
 
-# ============================================================
+ 
 # ENERGY ANALYTICS
-# ============================================================
-def calculate_energy_per_part(current, cycle_time_seconds=60):
+ 
+def estimate_cycle_time():
+    """Return the current estimated cycle duration in seconds."""
+    return _estimated_cycle_seconds
+
+
+def update_cycle_time():
+    """
+    Estimate cycle duration from timestamps between RPM transitions.
+    Called each polling iteration; updates the module-level estimate.
+    """
+    global _last_cycle_timestamp, _estimated_cycle_seconds
+
+    now = time.time()
+    if _last_cycle_timestamp is not None:
+        elapsed = now - _last_cycle_timestamp
+        # Only accept plausible cycle durations (2 s – 600 s)
+        if 2 <= elapsed <= 600:
+            _estimated_cycle_seconds = elapsed
+    _last_cycle_timestamp = now
+
+
+def calculate_energy_per_part(current, cycle_time_seconds=None):
     """
     Calculate energy consumption per part (kWh).
-    Uses: P = V * I * PF * sqrt(3) for 3-phase
+    Uses DC / single-phase formula: P = V * I
+    Energy (kWh) = P * cycle_time / 3600 / 1000
     """
     current = validate_numeric(current, "current", 0, 100, 8.0)
-    
-    # 3-phase power calculation
-    power_watts = VOLTAGE * current * POWER_FACTOR * np.sqrt(3)
-    
+
+    if cycle_time_seconds is None:
+        cycle_time_seconds = _estimated_cycle_seconds
+
+    # DC / single-phase power
+    power_watts = VOLTAGE * current
+
     # Energy for one cycle (kWh)
-    energy_kwh = (power_watts * cycle_time_seconds) / (1000 * 3600)
-    
-    # Track energy history
+    energy_kwh = (power_watts * cycle_time_seconds) / 3_600_000
+
+    # Clamp unrealistic values
+    energy_kwh = max(0, min(MAX_ENERGY_PER_PART, energy_kwh))
+
     energy_history.append(energy_kwh)
-    
-    return round(energy_kwh, 3)
+    return round(energy_kwh, 4)
 
 
 def get_energy_history():
@@ -343,9 +370,9 @@ def get_energy_history():
     return list(energy_history)
 
 
-# ============================================================
+ 
 # TOOL WEAR & UTILIZATION
-# ============================================================
+ 
 def update_tool_wear(cycle_minutes=0.0833):
     """
     Update tool runtime and calculate wear percentage.
@@ -402,72 +429,86 @@ def calculate_machine_utilization():
     return round(utilization, 1)
 
 
-# ============================================================
+ 
 # ANOMALY DETECTION
-# ============================================================
+ 
 def calculate_anomaly_score(temperature, vibration, current, rpm):
     """
-    Calculate overall anomaly score (0-1).
-    Combines multiple factors into a single metric.
-    0 = normal, 1 = highly anomalous
+    Calculate overall anomaly score (0-1) using normalised deviations
+    from safe operating ranges.
+
+    Component scores (each 0-1):
+      temp_score    = clamp((temp - 70) / 25)
+      vib_score     = clamp((vibration - 2) / 6)
+      current_score = clamp((current - CURRENT_NOMINAL) / CURRENT_OVERLOAD)
+      rpm_score     = clamp(rpm_std_dev / 10)
+
+    Weighted sum:
+      0.35 * temp + 0.30 * vib + 0.20 * current + 0.15 * rpm
     """
-    score = 0.0
-    
-    # Temperature contribution (0-0.3)
-    temp_risk = calculate_overheating_risk(temperature) / 100
-    score += temp_risk * 0.3
-    
-    # Vibration contribution (0-0.3)
+    temperature = validate_numeric(temperature, "temperature", 0, 150, 70)
     vibration = validate_numeric(vibration, "vibration", 0, 100, 1.5)
-    if vibration > VIBRATION_WARNING:
-        vib_factor = min(1, (vibration - VIBRATION_NORMAL_MAX) / 2)
-    else:
-        vib_factor = vibration / (VIBRATION_WARNING * 2)
-    score += vib_factor * 0.3
-    
-    # Current contribution (0-0.2)
     current = validate_numeric(current, "current", 0, 100, 8.0)
-    current_factor = min(1, current / CURRENT_MAX)
-    score += current_factor * 0.2
-    
-    # RPM stability contribution (0-0.2)
+
+    def _clamp01(v):
+        return max(0.0, min(1.0, v))
+
+    temp_score = _clamp01((temperature - 70) / 25)
+    vib_score = _clamp01((vibration - 2) / 6)
+    current_score = _clamp01((current - CURRENT_NOMINAL) / CURRENT_OVERLOAD)
+
+    # RPM instability from rolling std-dev
     if len(rpm_history) >= 5:
-        avg_rpm = np.mean(rpm_history)
-        std_rpm = np.std(rpm_history)
-        if avg_rpm > 0:
-            rpm_instability = min(1, std_rpm / (avg_rpm * 0.1))
-            score += rpm_instability * 0.2
-    
-    return round(max(0, min(1, score)), 3)
+        rpm_score = _clamp01(float(np.std(rpm_history)) / 10)
+    else:
+        rpm_score = 0.0
+
+    score = (0.35 * temp_score
+             + 0.30 * vib_score
+             + 0.20 * current_score
+             + 0.15 * rpm_score)
+
+    return round(_clamp01(score), 3)
 
 
-# ============================================================
+ 
 # HEALTH SCORE
-# ============================================================
-def calculate_health_score(failure_prob, vibration_alert, current_alert, temperature_alert=False):
+ 
+def calculate_health_score(temperature, vibration, current, rpm_stability, anomaly_score):
     """
     Calculate overall machine health score (0-100).
-    Combines failure probability with alert states.
+    Weighted risk model using normalised sensor deviations.
+
+    health = 100 - temp_risk*30 - vib_risk*25 - curr_risk*20
+                 - rpm_instability*15 - anomaly*10
     """
-    # Base score from failure probability
-    base_score = 100 - (failure_prob * 100)
-    
-    # Penalties for active alerts
-    penalty = 0
-    if vibration_alert:
-        penalty += 10
-    if current_alert:
-        penalty += 10
-    if temperature_alert:
-        penalty += 15
-    
-    health = max(0, min(100, base_score - penalty))
-    return float(health)
+    temperature = validate_numeric(temperature, "temperature", 0, 150, 70)
+    vibration = validate_numeric(vibration, "vibration", 0, 100, 1.5)
+    current = validate_numeric(current, "current", 0, 100, 8.0)
+    rpm_stability = validate_numeric(rpm_stability, "rpm_stability", 0, 1, 1.0)
+    anomaly_score = validate_numeric(anomaly_score, "anomaly_score", 0, 1, 0.0)
+
+    def _clamp01(v):
+        return max(0.0, min(1.0, v))
+
+    temp_risk = _clamp01((temperature - TEMP_OPTIMAL) / (TEMP_CRITICAL - TEMP_OPTIMAL))
+    vib_risk = _clamp01((vibration - VIBRATION_NORMAL_MAX) / (VIBRATION_WARNING - VIBRATION_NORMAL_MAX))
+    curr_risk = _clamp01((current - CURRENT_NOMINAL) / (CURRENT_MAX - CURRENT_NOMINAL))
+    rpm_instability = _clamp01(1.0 - rpm_stability)  # stability 1=stable → instability 0
+
+    health = (100
+              - temp_risk * 30
+              - vib_risk * 25
+              - curr_risk * 20
+              - rpm_instability * 15
+              - anomaly_score * 10)
+
+    return float(max(0.0, min(100.0, health)))
 
 
-# ============================================================
+ 
 # COMPREHENSIVE ANALYTICS
-# ============================================================
+ 
 def compute_all_analytics(rpm, temperature, vibration, current, failure_probability):
     """
     Compute all analytics in one call.
@@ -487,18 +528,20 @@ def compute_all_analytics(rpm, temperature, vibration, current, failure_probabil
     # Engineering metrics
     tool_wear, remaining_hours = update_tool_wear()
     utilization = calculate_machine_utilization()
+    update_cycle_time()
     energy = calculate_energy_per_part(current)
     cooling_eff = calculate_cooling_efficiency(temperature)
     overheat_risk = calculate_overheating_risk(temperature)
     bearing_wear = calculate_bearing_wear_probability(vibration, rpm)
     anomaly = calculate_anomaly_score(temperature, vibration, current, rpm)
-    
-    # Health score
+
+    # Health score (weighted risk model)
     health = calculate_health_score(
-        failure_probability, 
-        vib_alert, 
-        curr_alert,
-        temp_alert
+        temperature,
+        vibration,
+        current,
+        rpm_stability,
+        anomaly
     )
     
     return {
@@ -538,12 +581,13 @@ def compute_all_analytics(rpm, temperature, vibration, current, failure_probabil
     }
 
 
-# ============================================================
+ 
 # UTILITIES
-# ============================================================
+ 
 def reset_history():
     """Clear all history buffers (useful for testing)."""
     global tool_runtime_minutes, active_cycles, total_cycles
+    global _last_cycle_timestamp, _estimated_cycle_seconds
     
     rpm_history.clear()
     vibration_history.clear()
@@ -554,6 +598,8 @@ def reset_history():
     tool_runtime_minutes = 0
     active_cycles = 0
     total_cycles = 0
+    _last_cycle_timestamp = None
+    _estimated_cycle_seconds = 60
 
 
 def get_all_history():

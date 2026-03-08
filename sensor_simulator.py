@@ -9,7 +9,7 @@ import requests
 from datetime import datetime
 
 # Firebase configuration
-FIREBASE_URL = "https://cnc-machine-8664d-default-rtdb.asia-southeast1.firebasedatabase.app/cnc_machine.json"
+FIREBASE_URL = "https://cnc-machine-8664d-default-rtdb.asia-southeast1.firebasedatabase.app/cnc_machine/sensors.json"
 
 # Simulation parameters
 POLL_INTERVAL = 5  # seconds
@@ -17,7 +17,7 @@ POLL_INTERVAL = 5  # seconds
 # Sensor ranges (realistic CNC machine values)
 SENSOR_CONFIG = {
     "rpm": {"min": 1100, "max": 1400, "drift": 20},
-    "temperature": {"min": 60, "max": 80, "drift": 3},
+    "temperature": {"min": 60, "max": 100, "drift": 3},
     "vibration": {"min": 1.0, "max": 3.0, "drift": 0.3},
     "current": {"min": 7.0, "max": 10.0, "drift": 0.5},
     "sound": {"min": 40, "max": 70, "drift": 5},
